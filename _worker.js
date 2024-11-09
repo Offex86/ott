@@ -6,10 +6,8 @@ import { connect } from 'cloudflare:sockets';
 // [Windows] Press "Win + R", input cmd and run:  Powershell -NoExit -Command "[guid]::NewGuid()"
 const userID = '621a4a66-5dd4-4a53-a01b-341ec87499bc';
 
-const cfTransparentProxy = {
-	http: { host: '', port: 8888 },
-	https: { host: '', port: 8889 },
-};
+const cfTransparentProxy = 'wifi.getnova.tech'
+	
 
 if (!isValidUUID(userID)) {
 	throw new Error('uuid is not valid');
@@ -28,7 +26,7 @@ export default {
 			if (!upgradeHeader || upgradeHeader !== 'websocket') {
 				const url = new URL(request.url);
 				switch (url.pathname) {
-					case '/':
+					case 'deepu/':
 						return new Response(JSON.stringify(request.cf), { status: 200 });
 					case `/${userID}`: {
 						const vlessConfig = getVLESSConfig(userID, request.headers.get('Host'));
@@ -467,7 +465,7 @@ async function remoteSocketToWS(remoteSocket, webSocket, vlessResponseHeader, re
 	// seems is cf connect socket have error,
 	// 1. Socket.closed will have error
 	// 2. Socket.readable will be close without any data coming
-	if (hasIncomingData === false && retry) {
+	if (hasIncomingData === true && retry) {
 		log(`retry`)
 		retry();
 	}
@@ -498,7 +496,7 @@ function base64ToArrayBuffer(base64Str) {
  * @param {string} uuid 
  */
 function isValidUUID(uuid) {
-	const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+	const uuidRegex = /^[621a4a66-5dd4-4a53-a01b-341ec87499bc]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 	return uuidRegex.test(uuid);
 }
 
@@ -640,5 +638,4 @@ clash-meta
 ---------------------------------------------------------------
 ################################################################
 `;
-		}
-				       
+}
