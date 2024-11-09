@@ -6,11 +6,9 @@ import { connect } from 'cloudflare:sockets';
 // [Windows] Press "Win + R", input cmd and run:  Powershell -NoExit -Command "[guid]::NewGuid()"
 const userID = '621a4a66-5dd4-4a53-a01b-341ec87499bc';
 
-let proxyIP = '129.159.22.4'; // proxy
-
 const cfTransparentProxy = {
-	http: { host: '129.159.22.4', port: 8888 },
-	https: { host: 'wifi.getnova.tech', port: 8889 },
+	http: { host: '', port: 8888 },
+	https: { host: '', port: 8889 },
 };
 
 if (!isValidUUID(userID)) {
@@ -628,7 +626,7 @@ clash-meta
 - type: vless
   name: ${hostName}
   server: ${hostName}
-  port: 443
+  port: 80
   uuid: ${userID}
   network: ws
   tls: true
@@ -636,10 +634,11 @@ clash-meta
   sni: ${hostName}
   client-fingerprint: chrome
   ws-opts:
-    path: "/?ed=2048"
+    path: "/ed="
     headers:
       host: ${hostName}
 ---------------------------------------------------------------
 ################################################################
 `;
-}
+		}
+				       
