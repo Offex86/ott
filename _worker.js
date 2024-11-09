@@ -5,10 +5,9 @@ import { connect } from 'cloudflare:sockets';
 // How to generate your own UUID:
 // [Windows] Press "Win + R", input cmd and run:  Powershell -NoExit -Command "[guid]::NewGuid()"
 const userID = '621a4a66-5dd4-4a53-a01b-341ec87499bc';
-
-const cfTransparentProxy = 'wifi.getnova.tech'
-	
-
+const cfTransparentProxy = {
+	http: { host: '', port: 8888 },
+	https: { host: '', port: 8889 },
 if (!isValidUUID(userID)) {
 	throw new Error('uuid is not valid');
 }
