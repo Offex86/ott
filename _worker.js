@@ -6,6 +6,8 @@ import { connect } from 'cloudflare:sockets';
 // [Windows] Press "Win + R", input cmd and run:  Powershell -NoExit -Command "[guid]::NewGuid()"
 const userID = '621a4a66-5dd4-4a53-a01b-341ec87499bc';
 
+let proxyIP = '129.159.22.4'; // proxy
+
 const cfTransparentProxy = {
 	http: { host: '', port: 8888 },
 	https: { host: '', port: 8889 },
