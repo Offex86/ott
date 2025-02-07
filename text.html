@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Image Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        .container {
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            width: 350px;
+            text-align: center;
+            animation: fadeIn 1s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .image-container {
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 10px;
+            animation: slideIn 1s ease-in-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .image-container img {
+            max-width: 100%;
+            border-radius: 10px;
+            transition: transform 0.5s ease;
+        }
+        .image-container img:hover {
+            transform: scale(1.05);
+        }
+        .loading {
+            display: none;
+            margin-top: 20px;
+            font-size: 18px;
+            color: #333;
+        }
+        .loading::after {
+            content: "";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #007bff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .error {
+            display: none;
+            margin-top: 20px;
+            color: red;
+            font-size: 16px;
+        }
+        .time-taken {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+        .animation-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb);
+            background-size: 400% 400%;
+            animation: gradientBG 10s ease infinite;
+            z-index: -1;
+        }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="animation-bg"></div>
+    <div class="container">
+        <h1>AI Image Generator</h1>
+        <input type="text" id="prompt" placeholder="Enter your image description...">
+        <select id="mode">
+            <option value="2d">2D Art</option>
+            <option value="3d">3D Art</option>
+            <option value="realistic">Realistic</option>
+        </select>
+        <button onclick="generateImage()">Generate Image</button>
+        <div class="loading" id="loading">Generating Image...</div>
+        <div class="error" id="error">Error: Unable to generate image. Please try again.</div>
+        <div class="image-container">
+            <img id="generatedImage" src="" alt="Generated Image">
+        </div>
+        <div class="time-taken" id="timeTaken"></div>
+    </div>
+
+    <script>
+        async function generateImage() {
+            const prompt = document.getElementById('prompt').value;
+            const mode = document.getElementById('mode').value;
+            const token = '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'; // Replace with your Hugging Face token
+            const model = getModelByMode(mode); // Get model based on selected mode
+            const url = `https://api-inference.huggingface.co/models/${model}`;
+
+            // Show loading animation
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('generatedImage').src = '';
+            document.getElementById('timeTaken').innerText = '';
+
+            const startTime = new Date(); // Start time for calculating duration
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        inputs: prompt
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const data = await response.blob();
+                const imageUrl = URL.createObjectURL(data);
+                document.getElementById('generatedImage').src = imageUrl;
+
+                // Calculate time taken
+                const endTime = new Date();
+                const timeTaken = (endTime - startTime) / 1000; // Convert to seconds
+                document.getElementById('timeTaken').innerText = `Time taken: ${timeTaken.toFixed(2)} seconds`;
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('error').style.display = 'block';
+            } finally {
+                // Hide loading animation
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function getModelByMode(mode) {
+            switch (mode) {
+                case '2d':
+                    return "prompthero/openjourney"; // Example 2D model
+                case '3d':
+                    return "stabilityai/stable-diffusion-2-1"; // Example 3D model
+                case 'realistic':
+                    return "runwayml/stable-diffusion-v1-5"; // Example Realistic model
+                default:
+                    return "stabilityai/stable-diffusion-2-1"; // Default model
+            }
+        }
+    </script>
+</body>
+</html>
